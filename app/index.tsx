@@ -1,142 +1,155 @@
-import axios from "axios";
+import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Navbar from "../components/Navbar.tsx";
-import { JadwalSholat } from "./types/Jadwal";
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-export default function App() {
-  const [jadwal, setJadwal] = useState<JadwalSholat | null>(null);
-  const [time, setTime] = useState<string>("");
+export default function Home() {
+  const { cityName } = useLocalSearchParams(); // ← Ambil nama kota dari SearchPages
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      const now = new Date();
-      setTime(
-        now.toLocaleTimeString("id-ID", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
+  const city = cityName ? String(cityName) : "Jakarta"; // default
+
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchPrayerTimes = async () => {
+    try {
+      const response = await fetch(
+        `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Indonesia&method=2`
       );
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
+      const json = await response.json();
+      setData(json.data);
+    } catch (error) {
+      console.log("API Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Fetch API MyQuran
   useEffect(() => {
-    axios
-      .get("https://api.myquran.com/v2/sholat/jadwal/0101/2024/12/03")
-      .then((res) => setJadwal(res.data.data.jadwal))
-      .catch((err) => console.log(err));
-  }, []);
+    setLoading(true);
+    fetchPrayerTimes();
+  }, [city]);
 
-  if (!jadwal) return <Text style={{ padding: 20 }}>Loading...</Text>;
+  if (loading || !data) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="white" />
+      </View>
+    );
+  }
 
-  const sholatList = [
+  const timings = data.timings;
+  const date = data.date.readable;
+
+  const prayerList = [
     {
-      name: "Subuh",
-      key: "subuh",
+      name: "Fajr",
       icon: require("../assets/images/sunrise.png"),
+      time: timings.Fajr,
     },
     {
-      name: "Dzuhur",
-      key: "dzuhur",
+      name: "Dhuhr",
       icon: require("../assets/images/day.png"),
+      time: timings.Dhuhr,
     },
     {
-      name: "Ashar",
-      key: "ashar",
+      name: "Asr",
       icon: require("../assets/images/afternoon.png"),
+      time: timings.Asr,
     },
     {
       name: "Maghrib",
-      key: "maghrib",
       icon: require("../assets/images/evening.png"),
+      time: timings.Maghrib,
     },
-    { name: "Isya", key: "isya", icon: require("../assets/images/nigth.png") },
-  ] as const;
+    {
+      name: "Isha",
+      icon: require("../assets/images/night.png"),
+      time: timings.Isha,
+    },
+  ];
+
+  const hours = new Date().getHours().toString().padStart(2, "0");
+  const minutes = new Date().getMinutes().toString().padStart(2, "0");
 
   return (
-    <SafeAreaView>
-      <Navbar active="home" onPress={(page) => console.log("Go to:", page)} />
-      <ScrollView style={[styles.container, { marginTop: 120 }]}>
-        <View style={styles.headerCard}>
-          <Text style={styles.clock}>{time}</Text>
-          <Text style={styles.location}>Bekasi, Jawa Barat</Text>
+    <ScrollView style={styles.container}>
+      {/* BIG CARD */}
+      <View style={styles.bigCard}>
+        <Text style={styles.timeText}>
+          {hours} : {minutes}
+        </Text>
+
+        <Text style={styles.city}>{city}</Text>
+
+        <Text style={styles.dateText}>{date}</Text>
+      </View>
+
+      {/* PRAYER LIST */}
+      {prayerList.map((item, index) => (
+        <View key={index} style={styles.prayerCard}>
+          <Image
+            source={item.icon}
+            style={{ width: 40, height: 40, resizeMode: "contain" }}
+          />
+
+          <Text style={styles.prayerName}>{item.name}</Text>
+
+          <Text style={styles.prayerTime}>{item.time}</Text>
         </View>
-
-        {sholatList.map((item) => (
-          <View key={item.key} style={styles.card}>
-            <View style={styles.left}>
-              <Image source={item.icon} style={styles.icon} />
-              <Text style={styles.name}>{item.name}</Text>
-            </View>
-
-            <Text style={styles.timeText}>{jadwal[item.key]}</Text>
-          </View>
-        ))}
-      </ScrollView>
-    </SafeAreaView>
+      ))}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 15,
-    backgroundColor: "#f1f1f1",
-    marginTop: 120,
-  },
+  container: { flex: 1, padding: 20 },
 
-  headerCard: {
-    backgroundColor: "#11A145",
-    padding: 25,
-    borderRadius: 20,
-    marginBottom: 20,
-  },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
 
-  clock: {
-    fontSize: 40,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-
-  location: {
-    fontSize: 16,
-    color: "#ffffffcc",
-    marginTop: 5,
-  },
-
-  card: {
-    backgroundColor: "white",
-    padding: 15,
-    borderRadius: 18,
-    marginBottom: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    elevation: 3,
-  },
-
-  left: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-
-  icon: {
-    width: 32,
-    height: 32,
-    resizeMode: "contain",
-  },
-
-  name: {
-    fontSize: 18,
-    fontWeight: "600",
+  bigCard: {
+    backgroundColor: "#00A23D",
+    borderRadius: 30,
+    padding: 30,
+    marginBottom: 25,
   },
 
   timeText: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#333",
+    fontSize: 45,
+    color: "white",
+    fontWeight: "bold",
   },
+
+  city: {
+    color: "white",
+    fontSize: 22,
+    fontWeight: "500",
+    marginTop: 10,
+    textAlign: "right",
+  },
+
+  dateText: { marginTop: 10, color: "white", fontSize: 17 },
+
+  prayerCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 25,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+
+  prayerName: { flex: 1, fontSize: 20, marginLeft: 15 },
+
+  prayerTime: { fontSize: 20, color: "#888" },
 });
