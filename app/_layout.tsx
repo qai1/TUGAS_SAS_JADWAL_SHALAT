@@ -9,27 +9,24 @@ export default function Layout() {
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: "#f5f3f3ff", // samakan dengan warna halaman
+        backgroundColor: "#f5f3f3ff",
       }}
     >
-      {/* NAVBAR */}
       <View
         style={{
           backgroundColor: "#00A23D",
+          paddingVertical: 10,
           marginHorizontal: 20,
-          marginTop: 10, // tidak terlalu mepet dengan status bar
+          marginTop: 10,
           borderRadius: 40,
-          paddingVertical: 12,
           flexDirection: "row",
           justifyContent: "space-around",
-          alignItems: "center",
         }}
       >
-        {/* SEARCH */}
         <Link href={"/search" as any} asChild>
           <TouchableOpacity>
             <Image
-              source={require("../assets/images/Vector.png")}
+              source={require("../assets/images/Vector-2.png")}
               style={{
                 width: 26,
                 height: 26,
@@ -42,7 +39,7 @@ export default function Layout() {
         <Link href="/" asChild>
           <TouchableOpacity>
             <Image
-              source={require("../assets/images/Vector (1).png")}
+              source={require("../assets/images/Vector.png")}
               style={{
                 width: 26,
                 height: 26,
@@ -52,11 +49,10 @@ export default function Layout() {
           </TouchableOpacity>
         </Link>
 
-        {/* CALENDAR */}
         <Link href={"/calendar" as any} asChild>
           <TouchableOpacity>
             <Image
-              source={require("../assets/images/Vector (2).png")}
+              source={require("../assets/images/Vector-1.png")}
               style={{
                 width: 26,
                 height: 26,

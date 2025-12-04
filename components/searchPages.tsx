@@ -38,7 +38,6 @@ export default function SearchPages() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* SEARCH BAR */}
       <View style={styles.searchWrapper}>
         <TextInput
           placeholder="Cari kota..."
@@ -83,12 +82,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f1f1f1",
-    paddingTop: 15, // dari 80 → 15 agar dekat navbar
   },
   searchWrapper: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    marginTop: -5, // tarik sedikit lebih dekat ke navbar
+    marginTop: -5,
   },
   searchInput: {
     backgroundColor: "white",
