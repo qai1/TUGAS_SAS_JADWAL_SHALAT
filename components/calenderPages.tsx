@@ -68,8 +68,9 @@ export default function CalendarPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://api.aladhan.com/v1/gToHCalendar/${monthIndex}/${year}`
+        `https://api.aladhan.com/v1/gToHCalendar/${monthIndex}/${year}?zone=Asia/Jakarta`
       );
+
       const json = await res.json();
       setHijriData(json.data);
 
@@ -87,10 +88,10 @@ export default function CalendarPage() {
 
     if (newMonth === 13) {
       newMonth = 1;
-      newYear += 1;
+      newYear++;
     } else if (newMonth === 0) {
       newMonth = 12;
-      newYear -= 1;
+      newYear--;
     }
 
     setMonthIndex(newMonth);
@@ -141,30 +142,38 @@ export default function CalendarPage() {
           <View style={styles.grid}>
             {hijriData.map((item, idx) => {
               const hDay = Number(item.hijri.day);
-              const hMonth = hijriMonthNumber;
 
-              const eventName =
-                ISLAMIC_EVENTS[hMonth] && ISLAMIC_EVENTS[hMonth][hDay]
-                  ? ISLAMIC_EVENTS[hMonth][hDay]
-                  : null;
+              const [d, m, y] = item.gregorian.date.split("-");
+              const jsDate = new Date(Number(y), Number(m) - 1, Number(d));
+              const jsWeekday = jsDate.getDay();
+
+              let marginLeft: number | string = 0;
+              if (idx === 0) {
+                marginLeft = (jsWeekday * 100) / 7 + "%";
+              }
+
+              const eventName = monthEvents[hDay] ? monthEvents[hDay] : null;
 
               const backgroundColor = eventName
                 ? EVENT_COLORS[eventName]
                 : "#fff";
 
-              // Tampilkan "hari ini" hanya di bulan sekarang
               const isToday = isCurrentMonth && hDay === todayHijriDay;
 
               return (
                 <View
                   key={idx}
-                  style={[
-                    styles.dayCircle,
-                    { backgroundColor },
-                    isToday && styles.todayCircle,
-                  ]}
+                  style={[styles.dayCell, idx === 0 && ({ marginLeft } as any)]}
                 >
-                  <Text style={styles.dayText}>{toArabic(hDay)}</Text>
+                  <View
+                    style={[
+                      styles.dayCircle,
+                      { backgroundColor },
+                      isToday && styles.todayCircle,
+                    ]}
+                  >
+                    <Text style={styles.dayText}>{toArabic(hDay)}</Text>
+                  </View>
                 </View>
               );
             })}
@@ -256,13 +265,17 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     marginTop: 15,
   },
-  dayCircle: {
+  dayCell: {
     width: "14.2%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  dayCircle: {
+    width: "90%",
     aspectRatio: 1,
     borderRadius: 50,
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: 6,
     backgroundColor: "#fff",
     elevation: 2,
   },
@@ -270,12 +283,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
-
   todayCircle: {
     backgroundColor: "#b3d4ff",
     transform: [{ scale: 1.05 }],
   },
-
   ketTitle: {
     fontSize: 18,
     fontWeight: "bold",
