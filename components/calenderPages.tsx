@@ -97,6 +97,13 @@ export default function CalendarPage() {
     setYear(newYear);
   };
 
+  const isCurrentMonth =
+    monthIndex === today.getMonth() + 1 && year === today.getFullYear();
+
+  const todayDate = today.getDate();
+  const todayHijriDay =
+    hijriData.length > 0 ? Number(hijriData[todayDate - 1]?.hijri.day) : 0;
+
   const monthEvents = ISLAMIC_EVENTS[hijriMonthNumber] || {};
   const usedEvents = Object.values(monthEvents);
 
@@ -134,39 +141,30 @@ export default function CalendarPage() {
           <View style={styles.grid}>
             {hijriData.map((item, idx) => {
               const hDay = Number(item.hijri.day);
-
-              const isDifferentMonth =
-                Number(item.hijri.month.number) !== hijriMonthNumber;
+              const hMonth = hijriMonthNumber;
 
               const eventName =
-                ISLAMIC_EVENTS[item.hijri.month.number] &&
-                ISLAMIC_EVENTS[item.hijri.month.number][hDay]
-                  ? ISLAMIC_EVENTS[item.hijri.month.number][hDay]
+                ISLAMIC_EVENTS[hMonth] && ISLAMIC_EVENTS[hMonth][hDay]
+                  ? ISLAMIC_EVENTS[hMonth][hDay]
                   : null;
 
               const backgroundColor = eventName
                 ? EVENT_COLORS[eventName]
                 : "#fff";
 
+              // Tampilkan "hari ini" hanya di bulan sekarang
+              const isToday = isCurrentMonth && hDay === todayHijriDay;
+
               return (
                 <View
                   key={idx}
                   style={[
                     styles.dayCircle,
-                    {
-                      backgroundColor,
-                      opacity: isDifferentMonth ? 0.35 : 1,
-                    },
+                    { backgroundColor },
+                    isToday && styles.todayCircle,
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.dayText,
-                      { color: isDifferentMonth ? "#999" : "#000" },
-                    ]}
-                  >
-                    {toArabic(hDay)}
-                  </Text>
+                  <Text style={styles.dayText}>{toArabic(hDay)}</Text>
                 </View>
               );
             })}
@@ -174,7 +172,7 @@ export default function CalendarPage() {
         )}
       </View>
 
-      {monthEvents && Object.keys(monthEvents).length > 0 && (
+      {Object.keys(monthEvents).length > 0 && (
         <View style={{ marginTop: 30 }}>
           <Text style={styles.ketTitle}>Keterangan Bulan Ini:</Text>
 
@@ -272,6 +270,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
+
+  todayCircle: {
+    backgroundColor: "#b3d4ff",
+    transform: [{ scale: 1.05 }],
+  },
+
   ketTitle: {
     fontSize: 18,
     fontWeight: "bold",
