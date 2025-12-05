@@ -97,7 +97,6 @@ export default function CalendarPage() {
     setYear(newYear);
   };
 
-  // Ambil event bulan ini
   const monthEvents = ISLAMIC_EVENTS[hijriMonthNumber] || {};
   const usedEvents = Object.values(monthEvents);
 
@@ -135,11 +134,14 @@ export default function CalendarPage() {
           <View style={styles.grid}>
             {hijriData.map((item, idx) => {
               const hDay = Number(item.hijri.day);
-              const hMonth = hijriMonthNumber;
+
+              const isDifferentMonth =
+                Number(item.hijri.month.number) !== hijriMonthNumber;
 
               const eventName =
-                ISLAMIC_EVENTS[hMonth] && ISLAMIC_EVENTS[hMonth][hDay]
-                  ? ISLAMIC_EVENTS[hMonth][hDay]
+                ISLAMIC_EVENTS[item.hijri.month.number] &&
+                ISLAMIC_EVENTS[item.hijri.month.number][hDay]
+                  ? ISLAMIC_EVENTS[item.hijri.month.number][hDay]
                   : null;
 
               const backgroundColor = eventName
@@ -147,8 +149,24 @@ export default function CalendarPage() {
                 : "#fff";
 
               return (
-                <View key={idx} style={[styles.dayCircle, { backgroundColor }]}>
-                  <Text style={styles.dayText}>{toArabic(hDay)}</Text>
+                <View
+                  key={idx}
+                  style={[
+                    styles.dayCircle,
+                    {
+                      backgroundColor,
+                      opacity: isDifferentMonth ? 0.35 : 1,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.dayText,
+                      { color: isDifferentMonth ? "#999" : "#000" },
+                    ]}
+                  >
+                    {toArabic(hDay)}
+                  </Text>
                 </View>
               );
             })}
@@ -156,7 +174,6 @@ export default function CalendarPage() {
         )}
       </View>
 
-      {/* KETERANGAN TANGGAL */}
       {monthEvents && Object.keys(monthEvents).length > 0 && (
         <View style={{ marginTop: 30 }}>
           <Text style={styles.ketTitle}>Keterangan Bulan Ini:</Text>
@@ -169,7 +186,6 @@ export default function CalendarPage() {
         </View>
       )}
 
-      {/* LEGENDA WARNA EVENT */}
       {usedEvents.length > 0 && (
         <View style={{ marginTop: 25 }}>
           <Text style={styles.ketTitle}>Warna Penanda:</Text>
