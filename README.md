@@ -19,4 +19,11 @@ Proyek ini dibangun menggunakan React / TypeScript, yang dikhususkan untuk pengg
 3. Jalankan Aplikasi
    npx expo start
 
-<img width="538" height="1065" alt="Screenshot 2025-12-06 220326" src="https://github.com/user-attachments/assets/87f94ad1-ac53-4632-a5aa-1bb4b3daa0f0" />
+## Tampilan Aplikasi
+1. <img width="642" height="1362" alt="image" src="https://github.com/user-attachments/assets/e8a1f8e9-7a0b-43d4-bcfd-8e1c28b6a5cf" />
+   *Tampilan Homescreen
+2. <img width="642" height="1362" alt="image" src="https://github.com/user-attachments/assets/c01601a8-4809-4a82-81e7-71c25f21c7b9" />
+   *Tampilan Searchscreen
+3. <img width="642" height="1362" alt="image" src="https://github.com/user-attachments/assets/3055c067-aabb-4546-b30a-11f034e33031" />
+   *Tampilan Calendarscreen
+
